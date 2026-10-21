@@ -1,0 +1,15 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/tooling local config (not app code)
+.claude/
+.agents/
+.impeccable/
+
+# Vercel
+.vercel/
+
+# Source course material (not published to the repo)
+CONTENIDOS/
