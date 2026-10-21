@@ -169,7 +169,7 @@ function renderLessonScreen() {
   });
   const track = el('div', 'progress-track');
   const fill = el('div', 'progress-fill');
-  fill.style.width = (session.index / session.queue.length) * 100 + '%';
+  fill.style.transform = 'scaleX(' + session.index / session.queue.length + ')';
   track.appendChild(fill);
   const hearts = el('div', 'hearts');
   session.heartsEl = hearts;
@@ -301,7 +301,7 @@ function advance() {
   session.phase = 'answering';
   const body = document.querySelector('.lesson-body');
   const fill = document.querySelector('.progress-fill');
-  fill.style.width = (session.index / session.queue.length) * 100 + '%';
+  fill.style.transform = 'scaleX(' + session.index / session.queue.length + ')';
   session.checker = renderExercise(session.queue[session.index].ex, body, session.actionBtn);
 }
 
