@@ -5,7 +5,7 @@ function todayStr() {
 }
 
 function defaultState() {
-  return { xp: 0, streak: 0, lastActiveDate: null, lessons: {}, readModules: {}, solvedQuickChecks: {} };
+  return { xp: 0, streak: 0, lastActiveDate: null, lessons: {}, readModules: {}, solvedQuickChecks: {}, companyCapital: INITIAL_COMPANY_CAPITAL };
 }
 
 function loadState() {
@@ -24,8 +24,14 @@ function saveState() {
 
 function isLessonUnlocked(idx) {
   if (idx === 0) return true;
+  const lvl = SIM_LEVELS[idx];
   const prev = SIM_LEVELS[idx - 1];
-  return !!(state.lessons[prev.id] && state.lessons[prev.id].completed);
+  const prevDone = !!(state.lessons[prev.id] && state.lessons[prev.id].completed);
+  if (!prevDone) return false;
+  if (lvl && lvl.isBoss) {
+    return (state.companyCapital || 0) >= BOSS_MIN_CAPITAL;
+  }
+  return true;
 }
 
 function starsForMistakes(mistakes) {
@@ -167,20 +173,21 @@ function renderHome() {
 
   const completedCount = SIM_LEVELS.filter((l) => state.lessons[l.id] && state.lessons[l.id].completed).length;
   const practicePct = Math.round((completedCount / SIM_LEVELS.length) * 100);
-  const rankNames = ['Startup Inicial', 'Empresa en Crecimiento', 'PyME Sólida', 'Escala Regional', 'Corporación', '👑 Imperio CFO'];
+  const rankNames = [
+    'Startup Inicial', 'Empresa en Crecimiento', 'PyME Sólida', 'Escala Regional',
+    'Capital Eficiente', 'Tesorería Pro', 'Gestor de Tasas', 'Control de Costos',
+    'Manufactura Rentable', 'Holding Evaluador', 'Grupo Inversionista', '👑 Imperio CFO',
+  ];
   const currentRank = rankNames[Math.min(completedCount, rankNames.length - 1)];
-  const bestTotalCapital = SIM_LEVELS.reduce((acc, l) => {
-    const prog = state.lessons[l.id];
-    return acc + (prog && prog.bestCapital ? Math.max(0, prog.bestCapital - l.startCapital) : 0);
-  }, 10000);
+  const currentCapital = state.companyCapital !== undefined ? state.companyCapital : INITIAL_COMPANY_CAPITAL;
 
   const hero = el('section', 'learn-hero practice-hero');
   hero.innerHTML =
     '<div class="learn-hero-top">' +
     '<div><div class="learn-kicker">Modo Simulación · ' + currentRank + '</div><h1>Camino al Boss Final</h1></div>' +
-    '<div class="learn-pct">💰 $' + fmt(bestTotalCapital, 0) + '</div>' +
+    '<div class="learn-pct">💰 $' + fmt(currentCapital, 0) + '</div>' +
     '</div>' +
-    '<p class="learn-hero-desc">Cada nivel tiene <strong>5 rondas de decisión</strong> para hacer crecer tu empresa aplicando Ingeniería Económica hasta vencer al Boss Final.</p>' +
+    '<p class="learn-hero-desc">El capital de tu empresa sube o baja con cada decisión. Reúne al menos <strong>$' + fmt(BOSS_MIN_CAPITAL, 0) + '</strong> para desbloquear el Boss Final.</p>' +
     '<div class="learn-progress-track"><div class="learn-progress-fill" style="width:' + practicePct + '%"></div></div>';
   path.appendChild(hero);
 
@@ -192,17 +199,19 @@ function renderHome() {
     const roadmap = el('div', 'roadmap-grid');
     SIM_LEVELS.filter((l) => l.temaId === tema.id).forEach((lvl) => {
       const globalIdx = SIM_LEVELS.indexOf(lvl);
+      const prevDone = globalIdx === 0 || !!(state.lessons[SIM_LEVELS[globalIdx - 1].id] && state.lessons[SIM_LEVELS[globalIdx - 1].id].completed);
       const unlocked = isLessonUnlocked(globalIdx);
       const progress = state.lessons[lvl.id];
       const isDone = !!(progress && progress.completed);
       const isNext = unlocked && !isDone;
+      const bossNeedsCapital = lvl.isBoss && prevDone && currentCapital < BOSS_MIN_CAPITAL;
 
       const card = el('button', 'roadmap-card' + (lvl.isBoss ? ' boss-card' : '') + (!unlocked ? ' locked' : isDone ? ' done' : ' current'));
       card.type = 'button';
       card.disabled = !unlocked;
 
       const statusHtml = !unlocked
-        ? '<span class="rm-status locked">🔒 Bloqueado</span>'
+        ? '<span class="rm-status locked">' + (bossNeedsCapital ? '💰 Requiere $' + fmt(BOSS_MIN_CAPITAL, 0) : '🔒 Bloqueado') + '</span>'
         : isDone
           ? '<span class="rm-status done">' + '⭐'.repeat(progress.stars) + '☆'.repeat(3 - progress.stars) + '</span>'
           : '<span class="rm-status current">' + (lvl.isBoss ? 'Desafiar Boss →' : 'Jugar 5 rondas →') + '</span>';
@@ -215,7 +224,7 @@ function renderHome() {
         '</div>' +
         '<div class="rm-title">' + lvl.title + '</div>' +
         '<div class="rm-sub">' + lvl.subtitle + '</div>' +
-        '<div class="rm-meta">Capital base: $' + fmt(lvl.startCapital, 0) + ' · 5 rondas' + (isNext ? ' · Siguiente' : '') + '</div>';
+        '<div class="rm-meta">' + (lvl.isBoss ? 'Mínimo requerido: $' + fmt(BOSS_MIN_CAPITAL, 0) + ' · ' : '') + '5 rondas' + (isNext ? ' · Siguiente' : '') + '</div>';
 
       card.addEventListener('click', () => { if (unlocked) startLesson(lvl.id); });
       roadmap.appendChild(card);
@@ -245,8 +254,12 @@ function renderLearn() {
   const filters = el('div', 'learn-filters');
   [
     { id: 'all', label: 'Todos (' + STUDY_MODULES.length + ')' },
-    { id: 't1', label: 'Tema I: Principios' },
-    { id: 't2', label: 'Tema II: VDT' },
+    { id: 't1', label: 'Tema I' },
+    { id: 't2', label: 'Tema II' },
+    { id: 't3', label: 'Tema III' },
+    { id: 't4', label: 'Tema IV' },
+    { id: 't5', label: 'Tema V' },
+    { id: 't6', label: 'Tema VI' },
   ].forEach((f) => {
     const btn = el('button', 'filter-pill' + (learnFilter === f.id ? ' active' : ''));
     btn.textContent = f.label;
@@ -758,6 +771,10 @@ function renderLabBlock(b) {
   else if (b.labKind === 'factors_single') renderFactorsLab(body, 'single');
   else if (b.labKind === 'factors_series') renderFactorsLab(body, 'series');
   else if (b.labKind === 'annuities') renderAnnuitiesLab(body);
+  else if (b.labKind === 'nominal_effective') renderNominalEffectiveLab(body);
+  else if (b.labKind === 'breakeven') renderBreakEvenLab(body);
+  else if (b.labKind === 'eval_techniques') renderEvalTechniquesLab(body);
+  else if (b.labKind === 'compare_alts') renderCompareAltsLab(body);
 
   return sec;
 }
@@ -1049,11 +1066,188 @@ function renderAnnuitiesLab(body) {
   update();
 }
 
+function renderNominalEffectiveLab(body) {
+  let r = 12, freqIdx = 3;
+  const freqs = [
+    { label: 'Anual (m=1)', m: 1 },
+    { label: 'Semestral (m=2)', m: 2 },
+    { label: 'Trimestral (m=4)', m: 4 },
+    { label: 'Mensual (m=12)', m: 12 },
+    { label: 'Diaria (m=365)', m: 365 },
+    { label: 'Continua (∞)', m: Infinity },
+  ];
+  const tabs = el('div', 'plan-tabs');
+  const controls = el('div', 'lab-controls');
+  const out = el('div', 'lab-output');
+
+  function update() {
+    const f = freqs[freqIdx];
+    const rr = r / 100;
+    const tea = f.m === Infinity ? Math.exp(rr) - 1 : Math.pow(1 + rr / f.m, f.m) - 1;
+    const finalAmt = 1000 * (1 + tea);
+    tabs.querySelectorAll('.plan-tab').forEach((t, i) => t.classList.toggle('active', i === freqIdx));
+    out.innerHTML =
+      '<div class="formula-box">' +
+      '<div class="formula-expr">' + (f.m === Infinity ? 'i_ef = e^(' + rr.toFixed(2) + ') − 1' : 'i_ef = (1 + ' + rr.toFixed(2) + '/' + f.m + ')^' + f.m + ' − 1') + '</div>' +
+      '<div class="formula-desc">Tasa Nominal: ' + r + '% · $1,000 en 1 año → <strong>$' + fmt(finalAmt) + '</strong></div>' +
+      '</div>' +
+      '<div class="lab-verdict ok">Tasa Efectiva Anual (TEA): <strong>' + (tea * 100).toFixed(2) + '%</strong></div>';
+  }
+
+  freqs.forEach((f, i) => {
+    const btn = el('button', 'plan-tab');
+    btn.type = 'button';
+    btn.textContent = f.label;
+    btn.addEventListener('click', () => { freqIdx = i; update(); });
+    tabs.appendChild(btn);
+  });
+
+  controls.appendChild(makeRangeControl('Tasa nominal anual (r)', 2, 36, 1, r, (v) => v + '%', (v) => { r = v; update(); }));
+  body.appendChild(tabs);
+  body.appendChild(controls);
+  body.appendChild(out);
+  update();
+}
+
+function renderBreakEvenLab(body) {
+  let cf = 10000, cv = 30, price = 50, qty = 600;
+  const controls = el('div', 'lab-controls');
+  const out = el('div', 'lab-output');
+
+  function update() {
+    const marginU = price - cv;
+    const qStar = marginU > 0 ? cf / marginU : Infinity;
+    const rev = price * qty;
+    const cost = cf + cv * qty;
+    const profit = rev - cost;
+    const maxV = Math.max(rev, cost, 1);
+
+    out.innerHTML =
+      '<div class="lab-bars">' +
+      '<div class="lab-bar-row"><span>Ingresos totales (P × Q)</span><strong>$' + fmt(rev, 0) + '</strong></div>' +
+      '<div class="lab-bar-track"><div class="lab-bar-fill green" style="width:' + Math.round((rev / maxV) * 100) + '%"></div></div>' +
+      '<div class="lab-bar-row"><span>Costo total (CF + CVu × Q)</span><strong>$' + fmt(cost, 0) + '</strong></div>' +
+      '<div class="lab-bar-track"><div class="lab-bar-fill red" style="width:' + Math.round((cost / maxV) * 100) + '%"></div></div>' +
+      '</div>' +
+      '<div class="lab-verdict ' + (profit >= 0 ? 'ok' : 'warn') + '">' +
+      (marginU <= 0
+        ? '⚠️ El precio ($' + price + ') debe superar el CVu ($' + cv + ') para alcanzar equilibrio.'
+        : 'Punto de equilibrio: <strong>' + Math.ceil(qStar) + ' u</strong> · Resultado actual: <strong>' + (profit >= 0 ? '+$' : '-$') + fmt(Math.abs(profit), 0) + '</strong>') +
+      '</div>';
+  }
+
+  controls.appendChild(makeRangeControl('Costos Fijos (CF)', 2000, 25000, 1000, cf, (v) => '$' + fmt(v, 0), (v) => { cf = v; update(); }));
+  controls.appendChild(makeRangeControl('Costo Variable Unit. (CVu)', 10, 80, 5, cv, (v) => '$' + v, (v) => { cv = v; update(); }));
+  controls.appendChild(makeRangeControl('Precio de Venta (P)', 20, 120, 5, price, (v) => '$' + v, (v) => { price = v; update(); }));
+  controls.appendChild(makeRangeControl('Volumen vendido (Q)', 100, 1500, 50, qty, (v) => v + ' u', (v) => { qty = v; update(); }));
+
+  body.appendChild(controls);
+  body.appendChild(out);
+  update();
+}
+
+function renderEvalTechniquesLab(body) {
+  let inv = 25000, fen = 8000, res = 5000, n = 5, tmar = 20;
+  const controls = el('div', 'lab-controls');
+  const out = el('div', 'lab-output');
+
+  function update() {
+    const ii = tmar / 100;
+    const pa = (Math.pow(1 + ii, n) - 1) / (ii * Math.pow(1 + ii, n));
+    const pf = Math.pow(1 + ii, -n);
+    const fp = Math.pow(1 + ii, n);
+    const ap = 1 / pa;
+    const vpn = -inv + fen * pa + res * pf;
+    const vfn = vpn * fp;
+    const va = vpn * ap;
+    const priSimple = fen > 0 ? inv / fen : Infinity;
+
+    out.innerHTML =
+      '<div class="formula-box">' +
+      '<div class="formula-expr">VPN = $' + fmt(vpn) + '  |  VFN = $' + fmt(vfn) + '  |  VA = $' + fmt(va) + '</div>' +
+      '<div class="formula-desc">PRI Simple (i=0%): <strong>' + (priSimple === Infinity ? '∞' : priSimple.toFixed(1) + ' años') + '</strong> · TMAR: ' + tmar + '%</div>' +
+      '</div>' +
+      '<div class="lab-verdict ' + (vpn >= 0 ? 'ok' : 'warn') + '">' +
+      (vpn >= 0 ? '✅ Proyecto ACEPTABLE: VPN, VFN y VA ≥ 0 (supera la TMAR).' : '⚠️ Proyecto RECHAZADO: VPN < 0 (no alcanza la TMAR del ' + tmar + '%).') +
+      '</div>';
+  }
+
+  controls.appendChild(makeRangeControl('Inversión inicial (I₀)', 5000, 60000, 2500, inv, (v) => '$' + fmt(v, 0), (v) => { inv = v; update(); }));
+  controls.appendChild(makeRangeControl('Flujo Neto Anual (FEN)', 2000, 20000, 500, fen, (v) => '$' + fmt(v, 0), (v) => { fen = v; update(); }));
+  controls.appendChild(makeRangeControl('Valor de rescate (S)', 0, 15000, 1000, res, (v) => '$' + fmt(v, 0), (v) => { res = v; update(); }));
+  controls.appendChild(makeRangeControl('TMAR (i%)', 5, 30, 1, tmar, (v) => v + '%', (v) => { tmar = v; update(); }));
+
+  body.appendChild(controls);
+  body.appendChild(out);
+  update();
+}
+
+function renderCompareAltsLab(body) {
+  let lifeMode = 'equal', tmar = 12;
+  const tabs = el('div', 'plan-tabs');
+  const controls = el('div', 'lab-controls');
+  const out = el('div', 'lab-output');
+
+  const modes = [
+    { id: 'equal', label: 'Vidas iguales (5 años)' },
+    { id: 'diff', label: 'Vidas diferentes (4, 6, 8 años)' },
+  ];
+
+  function update() {
+    const ii = tmar / 100;
+    tabs.querySelectorAll('.plan-tab').forEach((t, idx) => t.classList.toggle('active', modes[idx].id === lifeMode));
+    const alts = lifeMode === 'equal'
+      ? [
+          { name: 'Máquina A', inv: 50000, flow: 18000, n: 5 },
+          { name: 'Máquina B', inv: 65000, flow: 22000, n: 5 },
+          { name: 'Máquina C', inv: 80000, flow: 26000, n: 5 },
+        ]
+      : [
+          { name: 'Máquina A (4a)', inv: 50000, flow: 18000, n: 4 },
+          { name: 'Máquina B (6a)', inv: 65000, flow: 22000, n: 6 },
+          { name: 'Máquina C (8a)', inv: 80000, flow: 26000, n: 8 },
+        ];
+
+    const results = alts.map((a) => {
+      const pa = (Math.pow(1 + ii, a.n) - 1) / (ii * Math.pow(1 + ii, a.n));
+      const ap = 1 / pa;
+      const vpn = -a.inv + a.flow * pa;
+      const va = -a.inv * ap + a.flow;
+      return { name: a.name, metric: lifeMode === 'equal' ? vpn : va };
+    });
+
+    const best = results.reduce((prev, cur) => (cur.metric > prev.metric ? cur : prev), results[0]);
+    const labelMetric = lifeMode === 'equal' ? 'VPN' : 'VA';
+
+    out.innerHTML =
+      '<div class="formula-box">' +
+      '<div class="formula-expr">' + results.map((r) => r.name.split(' ')[1] + ': ' + labelMetric + ' = $' + fmt(r.metric, 0)).join('  |  ') + '</div>' +
+      '<div class="formula-desc">Criterio recomendado: <strong>' + (lifeMode === 'equal' ? 'Mayor VPN (vidas iguales)' : 'Mayor VA o MCM = 24 años (vidas diferentes)') + '</strong></div>' +
+      '</div>' +
+      '<div class="lab-verdict ok">🏆 Mejor alternativa a TMAR ' + tmar + '%: <strong>' + best.name + '</strong> (' + labelMetric + ' = $' + fmt(best.metric) + ').</div>';
+  }
+
+  modes.forEach((m) => {
+    const btn = el('button', 'plan-tab');
+    btn.type = 'button';
+    btn.textContent = m.label;
+    btn.addEventListener('click', () => { lifeMode = m.id; update(); });
+    tabs.appendChild(btn);
+  });
+
+  controls.appendChild(makeRangeControl('TMAR de evaluación', 6, 20, 1, tmar, (v) => v + '%', (v) => { tmar = v; update(); }));
+  body.appendChild(tabs);
+  body.appendChild(controls);
+  body.appendChild(out);
+  update();
+}
+
 /* ===================== SIMULATION LEVEL RUNTIME ===================== */
 
 function startLesson(levelId) {
   const level = SIM_LEVELS.find((l) => l.id === levelId);
   if (!level) return;
+  const startingCap = state.companyCapital !== undefined ? state.companyCapital : INITIAL_COMPANY_CAPITAL;
   session = {
     level,
     rounds: level.rounds,
@@ -1061,7 +1255,8 @@ function startLesson(levelId) {
     hearts: 3,
     mistakes: 0,
     xpEarned: 0,
-    capital: level.startCapital,
+    startCapital: startingCap,
+    capital: startingCap,
     phase: 'answering',
     selectedIdx: -1,
   };
@@ -1176,13 +1371,15 @@ function renderSimScreen() {
 
     if (chosen.correct) {
       session.xpEarned += 10;
-      state.xp += 10;
-      saveState();
     } else {
       session.mistakes += 1;
       session.hearts -= 1;
       const nh = Math.max(session.hearts, 0);
       hearts.textContent = '❤️'.repeat(nh) + '🖤'.repeat(3 - nh);
+      if (session.hearts <= 0) {
+        setTimeout(() => { failLesson(); }, 450);
+        return;
+      }
     }
 
     const impactStr = (chosen.impact >= 0 ? '+$' : '-$') + fmt(Math.abs(chosen.impact), 0);
@@ -1208,8 +1405,9 @@ function finishLesson() {
   const lvl = session.level;
   const prev = state.lessons[lvl.id];
   const bestStars = prev ? Math.max(prev.stars, stars) : stars;
-  const bestCapital = prev && prev.bestCapital ? Math.max(prev.bestCapital, session.capital) : session.capital;
-  state.lessons[lvl.id] = { completed: true, stars: bestStars, bestCapital };
+  state.companyCapital = session.capital;
+  state.xp += session.xpEarned;
+  state.lessons[lvl.id] = { completed: true, stars: bestStars, bestCapital: session.capital };
   const streakBumped = registerStreak();
   saveState();
   renderSummary(stars, streakBumped);
@@ -1217,7 +1415,8 @@ function finishLesson() {
 
 function renderSummary(stars, streakBumped) {
   const lvl = session.level;
-  const growth = Math.round(((session.capital - lvl.startCapital) / lvl.startCapital) * 100);
+  const baseCap = session.startCapital || 1;
+  const growth = Math.round(((session.capital - baseCap) / baseCap) * 100);
   const growthStr = (growth >= 0 ? '+' : '') + growth + '%';
 
   root.innerHTML = '';
@@ -1246,18 +1445,49 @@ function renderSummary(stars, streakBumped) {
 }
 
 function failLesson() {
-  const levelId = session.level.id;
+  const lvl = session.level;
+  if (state.lessons[lvl.id]) {
+    delete state.lessons[lvl.id];
+    saveState();
+  }
+  const recMods = (lvl.recommendedModules || [])
+    .map((id) => STUDY_MODULES.find((m) => m.id === id))
+    .filter(Boolean);
+
+  session = null;
   root.innerHTML = '';
   const wrap = el('div', 'lesson-screen');
   const content = el('div', 'fail-screen');
-  content.innerHTML = '<div class="emoji">📉</div><h2>¡La Junta retiró su confianza!</h2><p>Tu empresa sufrió demasiadas pérdidas en este nivel. Ajusta tu estrategia e inténtalo de nuevo.</p>';
-  const retryBtn = el('button', 'btn-3d');
-  retryBtn.textContent = 'REINTENTAR NIVEL';
-  retryBtn.addEventListener('click', () => startLesson(levelId));
+  content.innerHTML =
+    '<div class="emoji">📉</div>' +
+    '<h2>¡Agotaste tus 3 vidas!</h2>' +
+    '<p>Saliste del nivel <strong>' + lvl.title + '</strong> y se reinició como si no lo hubieras jugado. Tu capital sigue en <strong>$' + fmt(state.companyCapital !== undefined ? state.companyCapital : INITIAL_COMPANY_CAPITAL, 0) + '</strong>.</p>' +
+    '<div class="fail-rec-box">' +
+    '<div class="fail-rec-title">📖 Te recomendamos repasar estas lecciones antes de volver a intentarlo:</div>' +
+    '<div class="fail-rec-list"></div>' +
+    '</div>';
+
+  const recList = content.querySelector('.fail-rec-list');
+  recMods.forEach((mod) => {
+    const b = el('button', 'fail-rec-btn');
+    b.type = 'button';
+    b.innerHTML = '<span>' + mod.icon + ' ' + mod.title + '</span><span>Repasar →</span>';
+    b.addEventListener('click', () => {
+      activeTab = 'learn';
+      activeModuleId = mod.id;
+      activeModuleStep = 0;
+      renderHome();
+      window.scrollTo(0, 0);
+    });
+    recList.appendChild(b);
+  });
+
   const exitBtn = el('button', 'btn-3d secondary');
-  exitBtn.textContent = 'SALIR';
-  exitBtn.addEventListener('click', () => { session = null; renderHome(); });
-  content.appendChild(retryBtn);
+  exitBtn.textContent = 'VOLVER A PRACTICAR';
+  exitBtn.addEventListener('click', () => {
+    activeTab = 'practice';
+    renderHome();
+  });
   content.appendChild(exitBtn);
   wrap.appendChild(content);
   root.appendChild(wrap);
