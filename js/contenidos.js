@@ -1,4 +1,4 @@
-const STUDY_MODULES = [
+﻿const STUDY_MODULES = [
   /* ==================== TEMA I ==================== */
   {
     id: 'm1',
@@ -7,7 +7,7 @@ const STUDY_MODULES = [
     title: '¿Qué es la Ingeniería Económica?',
     subtitle: 'Definición, objetivo y alcance estratégico',
     readMinutes: 3,
-    relatedLessonId: 'l1',
+    relatedLessonId: 's1',
     blocks: [
       {
         type: 'lead',
@@ -97,7 +97,7 @@ const STUDY_MODULES = [
     title: 'Conceptos Claves en la IE',
     subtitle: 'VDT, tasas, flujos, equivalencia, TMAR y oportunidad',
     readMinutes: 4,
-    relatedLessonId: 'l2',
+    relatedLessonId: 's2',
     blocks: [
       {
         type: 'lead',
@@ -196,7 +196,7 @@ const STUDY_MODULES = [
     title: 'Enfoque Interdisciplinario',
     subtitle: 'Cómo se conecta la IE con otras ciencias y la gestión',
     readMinutes: 3,
-    relatedLessonId: 'l1',
+    relatedLessonId: 's1',
     blocks: [
       {
         type: 'lead',
@@ -292,7 +292,7 @@ const STUDY_MODULES = [
     title: 'Los 7 Principios de la IE',
     subtitle: 'Reglas fundamentales para evaluar alternativas',
     readMinutes: 4,
-    relatedLessonId: 'l3',
+    relatedLessonId: 's1',
     blocks: [
       {
         type: 'lead',
@@ -384,7 +384,7 @@ const STUDY_MODULES = [
     title: 'El Dinero, sus Funciones y el Capital',
     subtitle: 'De medio de intercambio a capital productivo',
     readMinutes: 3,
-    relatedLessonId: 'l4',
+    relatedLessonId: 's2',
     blocks: [
       {
         type: 'lead',
@@ -462,7 +462,7 @@ const STUDY_MODULES = [
     title: 'VDT, Inflación e Interés',
     subtitle: 'Simulador interactivo de poder adquisitivo e interés',
     readMinutes: 5,
-    relatedLessonId: 'l4',
+    relatedLessonId: 's2',
     blocks: [
       {
         type: 'lead',
@@ -531,7 +531,7 @@ const STUDY_MODULES = [
     title: 'Interés Simple vs. Interés Compuesto',
     subtitle: 'Duelo interactivo año a año',
     readMinutes: 4,
-    relatedLessonId: 'l5',
+    relatedLessonId: 's3',
     blocks: [
       {
         type: 'lead',
@@ -602,7 +602,7 @@ const STUDY_MODULES = [
     title: 'Equivalencia Económica',
     subtitle: 'Explorador de los 5 planes de pago',
     readMinutes: 5,
-    relatedLessonId: 'l5',
+    relatedLessonId: 's3',
     blocks: [
       {
         type: 'lead',
@@ -662,7 +662,7 @@ const STUDY_MODULES = [
     title: 'Notación y Diagramas de Flujo',
     subtitle: 'Constructor visual de flujos de efectivo',
     readMinutes: 4,
-    relatedLessonId: 'l6',
+    relatedLessonId: 's4',
     blocks: [
       {
         type: 'lead',
@@ -720,7 +720,7 @@ const STUDY_MODULES = [
     title: 'Factores de Pago Único (F/P y P/F)',
     subtitle: 'Calculadora visual de capitalización y descuento',
     readMinutes: 5,
-    relatedLessonId: 'l7',
+    relatedLessonId: 's4',
     blocks: [
       {
         type: 'lead',
@@ -781,7 +781,7 @@ const STUDY_MODULES = [
     title: 'Factores de Serie Uniforme',
     subtitle: 'Simulador de F/A, P/A, A/F y A/P',
     readMinutes: 5,
-    relatedLessonId: 'l8',
+    relatedLessonId: 's5',
     blocks: [
       {
         type: 'lead',
@@ -842,7 +842,7 @@ const STUDY_MODULES = [
     title: 'Renta o Anualidad y su Clasificación',
     subtitle: 'Comparador interactivo: Vencida, Anticipada y Diferida',
     readMinutes: 6,
-    relatedLessonId: 'l9',
+    relatedLessonId: 's5',
     blocks: [
       {
         type: 'lead',

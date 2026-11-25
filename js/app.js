@@ -24,7 +24,7 @@ function saveState() {
 
 function isLessonUnlocked(idx) {
   if (idx === 0) return true;
-  const prev = LESSONS[idx - 1];
+  const prev = SIM_LEVELS[idx - 1];
   return !!(state.lessons[prev.id] && state.lessons[prev.id].completed);
 }
 
@@ -83,22 +83,39 @@ let activeModuleStep = 0;
 
 /* ===================== HOME / NAVIGATION ===================== */
 
-function renderHeader() {
-  const header = el('header', 'app-header');
-  header.innerHTML =
-    '<div class="brand"><span class="logo-dot">💹</span>Econing</div>' +
-    '<div class="stat-pills">' +
-    '<div class="stat-pill xp"><span class="emoji">⭐</span>' + state.xp + ' XP</div>' +
-    '<div class="stat-pill streak"><span class="emoji">🔥</span>' + state.streak + '</div>' +
-    '</div>';
-  root.appendChild(header);
+function econingLogoSVG() {
+  return (
+    '<svg class="econing-logo-svg" viewBox="0 0 40 40" width="36" height="36" aria-hidden="true">' +
+    '<defs>' +
+    '<linearGradient id="ecGrad" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0%" stop-color="#4F46E5" />' +
+    '<stop offset="100%" stop-color="#0D9488" />' +
+    '</linearGradient>' +
+    '</defs>' +
+    '<rect x="1" y="1" width="38" height="38" rx="11" fill="url(#ecGrad)" />' +
+    '<rect x="1.5" y="1.5" width="37" height="37" rx="10.5" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1" />' +
+    '<path d="M10 27 L17 20 L22 23.5 L29.5 13.5" fill="none" stroke="#FFFFFF" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" />' +
+    '<path d="M25.5 13.5 H29.5 V17.5" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />' +
+    '<circle cx="17" cy="20" r="2.1" fill="#A5B4FC" />' +
+    '<circle cx="29.5" cy="13.5" r="2.6" fill="#F59E0B" />' +
+    '</svg>'
+  );
+}
 
+function renderHeader() {
   const readCount = STUDY_MODULES.filter((m) => state.readModules && state.readModules[m.id]).length;
+
+  const shell = el('div', 'island-header-wrap');
+  const header = el('header', 'app-header');
+
+  const brand = el('div', 'brand');
+  brand.innerHTML = econingLogoSVG() + '<div class="brand-text"><span>Econing</span><small>Ing. Económica</small></div>';
+
   const nav = el('nav', 'main-nav');
   nav.setAttribute('aria-label', 'Secciones principales');
 
   const learnBtn = el('button', 'main-nav-btn' + (activeTab === 'learn' ? ' active' : ''));
-  learnBtn.innerHTML = '<span>📖</span><span>Aprender</span><span class="nav-badge">' + readCount + '/' + STUDY_MODULES.length + '</span>';
+  learnBtn.innerHTML = '<span>Aprender</span><span class="nav-badge">' + readCount + '/' + STUDY_MODULES.length + '</span>';
   learnBtn.addEventListener('click', () => {
     activeTab = 'learn';
     activeModuleId = null;
@@ -106,7 +123,7 @@ function renderHeader() {
   });
 
   const practiceBtn = el('button', 'main-nav-btn' + (activeTab === 'practice' ? ' active' : ''));
-  practiceBtn.innerHTML = '<span>🎯</span><span>Practicar</span>';
+  practiceBtn.innerHTML = '<span>Practicar</span>';
   practiceBtn.addEventListener('click', () => {
     activeTab = 'practice';
     activeModuleId = null;
@@ -115,7 +132,17 @@ function renderHeader() {
 
   nav.appendChild(learnBtn);
   nav.appendChild(practiceBtn);
-  root.appendChild(nav);
+
+  const stats = el('div', 'stat-pills');
+  stats.innerHTML =
+    '<div class="stat-pill xp"><span class="emoji">✦</span><span>' + state.xp + '</span><small>XP</small></div>' +
+    '<div class="stat-pill streak"><span class="emoji">🔥</span><span>' + state.streak + '</span></div>';
+
+  header.appendChild(brand);
+  header.appendChild(nav);
+  header.appendChild(stats);
+  shell.appendChild(header);
+  root.appendChild(shell);
 }
 
 function renderHome() {
@@ -137,44 +164,63 @@ function renderHome() {
   }
 
   const path = el('main', 'path-screen');
+
+  const completedCount = SIM_LEVELS.filter((l) => state.lessons[l.id] && state.lessons[l.id].completed).length;
+  const practicePct = Math.round((completedCount / SIM_LEVELS.length) * 100);
+  const rankNames = ['Startup Inicial', 'Empresa en Crecimiento', 'PyME Sólida', 'Escala Regional', 'Corporación', '👑 Imperio CFO'];
+  const currentRank = rankNames[Math.min(completedCount, rankNames.length - 1)];
+  const bestTotalCapital = SIM_LEVELS.reduce((acc, l) => {
+    const prog = state.lessons[l.id];
+    return acc + (prog && prog.bestCapital ? Math.max(0, prog.bestCapital - l.startCapital) : 0);
+  }, 10000);
+
+  const hero = el('section', 'learn-hero practice-hero');
+  hero.innerHTML =
+    '<div class="learn-hero-top">' +
+    '<div><div class="learn-kicker">Modo Simulación · ' + currentRank + '</div><h1>Camino al Boss Final</h1></div>' +
+    '<div class="learn-pct">💰 $' + fmt(bestTotalCapital, 0) + '</div>' +
+    '</div>' +
+    '<p class="learn-hero-desc">Cada nivel tiene <strong>5 rondas de decisión</strong> para hacer crecer tu empresa aplicando Ingeniería Económica hasta vencer al Boss Final.</p>' +
+    '<div class="learn-progress-track"><div class="learn-progress-fill" style="width:' + practicePct + '%"></div></div>';
+  path.appendChild(hero);
+
   TEMAS.forEach((tema) => {
     const banner = el('div', 'tema-banner');
     banner.innerHTML = '<div class="tema-kicker">' + tema.title + '</div><h2>' + tema.subtitle + '</h2>';
     path.appendChild(banner);
 
-    const pathWrap = el('div', 'path');
-    LESSONS.filter((l) => l.temaId === tema.id).forEach((lesson) => {
-      const globalIdx = LESSONS.indexOf(lesson);
+    const roadmap = el('div', 'roadmap-grid');
+    SIM_LEVELS.filter((l) => l.temaId === tema.id).forEach((lvl) => {
+      const globalIdx = SIM_LEVELS.indexOf(lvl);
       const unlocked = isLessonUnlocked(globalIdx);
-      const progress = state.lessons[lesson.id];
+      const progress = state.lessons[lvl.id];
+      const isDone = !!(progress && progress.completed);
+      const isNext = unlocked && !isDone;
 
-      const wrap = el('div', 'path-node-wrap');
-      const node = el('button', 'path-node');
-      const cycle = globalIdx % 4;
-      if (cycle === 1) node.dataset.offset = 'right';
-      if (cycle === 3) node.dataset.offset = 'left';
-      node.textContent = lesson.icon;
-      if (!unlocked) {
-        node.classList.add('locked');
-      } else if (progress && progress.completed) {
-        node.classList.add('done');
-      }
-      node.disabled = !unlocked;
-      node.addEventListener('click', () => { if (unlocked) startLesson(lesson.id); });
+      const card = el('button', 'roadmap-card' + (lvl.isBoss ? ' boss-card' : '') + (!unlocked ? ' locked' : isDone ? ' done' : ' current'));
+      card.type = 'button';
+      card.disabled = !unlocked;
 
-      if (progress && progress.completed) {
-        const stars = el('div', 'stars');
-        stars.textContent = '⭐'.repeat(progress.stars) + '☆'.repeat(3 - progress.stars);
-        node.appendChild(stars);
-      }
+      const statusHtml = !unlocked
+        ? '<span class="rm-status locked">🔒 Bloqueado</span>'
+        : isDone
+          ? '<span class="rm-status done">' + '⭐'.repeat(progress.stars) + '☆'.repeat(3 - progress.stars) + '</span>'
+          : '<span class="rm-status current">' + (lvl.isBoss ? 'Desafiar Boss →' : 'Jugar 5 rondas →') + '</span>';
 
-      wrap.appendChild(node);
-      const label = el('div', 'node-label');
-      label.textContent = lesson.title;
-      wrap.appendChild(label);
-      pathWrap.appendChild(wrap);
+      card.innerHTML =
+        '<div class="rm-top">' +
+        '<span class="rm-num' + (lvl.isBoss ? ' boss' : '') + '">' + lvl.number + '</span>' +
+        '<span class="rm-icon">' + lvl.icon + '</span>' +
+        statusHtml +
+        '</div>' +
+        '<div class="rm-title">' + lvl.title + '</div>' +
+        '<div class="rm-sub">' + lvl.subtitle + '</div>' +
+        '<div class="rm-meta">Capital base: $' + fmt(lvl.startCapital, 0) + ' · 5 rondas' + (isNext ? ' · Siguiente' : '') + '</div>';
+
+      card.addEventListener('click', () => { if (unlocked) startLesson(lvl.id); });
+      roadmap.appendChild(card);
     });
-    path.appendChild(pathWrap);
+    path.appendChild(roadmap);
   });
   root.appendChild(path);
 }
@@ -517,10 +563,10 @@ function renderModuleComplete(mod, nextMod) {
     '</div>';
 
   if (mod.relatedLessonId) {
-    const lessonIdx = LESSONS.findIndex((l) => l.id === mod.relatedLessonId);
+    const lessonIdx = SIM_LEVELS.findIndex((l) => l.id === mod.relatedLessonId);
     const unlocked = lessonIdx !== -1 && isLessonUnlocked(lessonIdx);
     const practiceBtn = el('button', 'btn-3d blue');
-    practiceBtn.textContent = unlocked ? '🎯 Practicar este tema ahora' : '🎯 Ir a la ruta de práctica';
+    practiceBtn.textContent = unlocked ? '🎯 Jugar nivel empresarial' : '🎯 Ir a Simulación';
     practiceBtn.addEventListener('click', () => {
       activeModuleId = null;
       activeModuleStep = 0;
@@ -529,7 +575,7 @@ function renderModuleComplete(mod, nextMod) {
       } else {
         activeTab = 'practice';
         renderHome();
-        showToast('Completa las lecciones previas para desbloquearla');
+        showToast('Supera los niveles previos para desbloquearlo');
       }
     });
     content.appendChild(practiceBtn);
@@ -1003,23 +1049,23 @@ function renderAnnuitiesLab(body) {
   update();
 }
 
-/* ===================== LESSON RUNTIME ===================== */
+/* ===================== SIMULATION LEVEL RUNTIME ===================== */
 
-function startLesson(lessonId) {
-  const lesson = LESSONS.find((l) => l.id === lessonId);
+function startLesson(levelId) {
+  const level = SIM_LEVELS.find((l) => l.id === levelId);
+  if (!level) return;
   session = {
-    lesson,
-    queue: lesson.exercises.map((ex) => ({ ex })),
+    level,
+    rounds: level.rounds,
     index: 0,
     hearts: 3,
     mistakes: 0,
     xpEarned: 0,
+    capital: level.startCapital,
     phase: 'answering',
-    checker: null,
-    actionBtn: null,
-    heartsEl: null,
+    selectedIdx: -1,
   };
-  renderLessonScreen();
+  renderSimScreen();
 }
 
 function exitLesson() {
@@ -1027,180 +1073,170 @@ function exitLesson() {
   renderHome();
 }
 
-function renderLessonScreen() {
+function renderSimScreen() {
   root.innerHTML = '';
-  const screen = el('div', 'lesson-screen');
+  const screen = el('div', 'lesson-screen' + (session.level.isBoss ? ' boss-mode' : ''));
 
   const topbar = el('div', 'lesson-topbar');
   const closeBtn = el('button', 'icon-btn');
+  closeBtn.type = 'button';
   closeBtn.innerHTML = '✕';
   closeBtn.addEventListener('click', () => {
-    if (confirm('¿Salir de la lección? Perderás el progreso de este intento.')) exitLesson();
+    if (confirm('¿Salir de la simulación? Perderás el progreso de este nivel.')) exitLesson();
   });
+
   const track = el('div', 'progress-track');
   const fill = el('div', 'progress-fill');
-  fill.style.transform = 'scaleX(' + session.index / session.queue.length + ')';
+  fill.style.transform = 'scaleX(' + (session.index + 1) / session.rounds.length + ')';
   track.appendChild(fill);
+
+  const capPill = el('div', 'sim-cap-pill');
+  capPill.textContent = '💰 $' + fmt(session.capital, 0);
+
   const hearts = el('div', 'hearts');
-  session.heartsEl = hearts;
-  updateHeartsUI();
+  const h = Math.max(session.hearts, 0);
+  hearts.textContent = '❤️'.repeat(h) + '🖤'.repeat(3 - h);
+
   topbar.appendChild(closeBtn);
   topbar.appendChild(track);
+  topbar.appendChild(capPill);
   topbar.appendChild(hearts);
   screen.appendChild(topbar);
 
   const body = el('div', 'lesson-body');
+  const round = session.rounds[session.index];
+
+  const kicker = el('div', 'exercise-kicker');
+  kicker.textContent = (session.level.isBoss ? '👑 ' : '') + session.level.title + ' · ' + round.tag;
+  const title = el('div', 'exercise-question');
+  title.textContent = round.title;
+  const scenario = el('div', 'exercise-statement sim-scenario');
+  scenario.textContent = round.scenario;
+
+  const optsWrap = el('div', 'options-grid');
+  const optionBtns = round.options.map((opt, idx) => {
+    const b = el('button', 'option-btn sim-decision-btn');
+    b.type = 'button';
+    b.innerHTML =
+      '<div class="sim-opt-label">' + opt.label + '</div>' +
+      '<div class="sim-opt-detail">' + opt.detail + '</div>';
+    b.addEventListener('click', () => {
+      if (session.phase === 'checked') return;
+      session.selectedIdx = idx;
+      optionBtns.forEach((bb) => bb.classList.remove('selected'));
+      b.classList.add('selected');
+      actionBtn.disabled = false;
+    });
+    optsWrap.appendChild(b);
+    return b;
+  });
+
+  body.appendChild(kicker);
+  body.appendChild(title);
+  body.appendChild(scenario);
+  body.appendChild(optsWrap);
   screen.appendChild(body);
 
   const footer = el('div', 'lesson-footer');
   const feedbackMsg = el('div', 'footer-feedback');
   const inner = el('div', 'inner');
   const actionBtn = el('button', 'btn-3d');
-  actionBtn.textContent = 'COMPROBAR';
+  actionBtn.type = 'button';
+  actionBtn.textContent = 'EJECUTAR DECISIÓN';
   actionBtn.disabled = true;
-  actionBtn.addEventListener('click', handleAction);
+
+  actionBtn.addEventListener('click', () => {
+    if (session.phase === 'checked') {
+      if (session.hearts <= 0) {
+        failLesson();
+        return;
+      }
+      session.index += 1;
+      if (session.index >= session.rounds.length) {
+        finishLesson();
+        return;
+      }
+      session.phase = 'answering';
+      session.selectedIdx = -1;
+      renderSimScreen();
+      return;
+    }
+
+    const chosen = round.options[session.selectedIdx];
+    session.phase = 'checked';
+    session.capital = Math.max(0, session.capital + chosen.impact);
+    capPill.textContent = '💰 $' + fmt(session.capital, 0);
+    capPill.classList.add(chosen.correct ? 'gain' : 'loss');
+
+    optionBtns.forEach((b, i) => {
+      b.disabled = true;
+      if (round.options[i].correct) b.classList.add('correct');
+      else if (i === session.selectedIdx) b.classList.add('incorrect');
+    });
+
+    if (chosen.correct) {
+      session.xpEarned += 10;
+      state.xp += 10;
+      saveState();
+    } else {
+      session.mistakes += 1;
+      session.hearts -= 1;
+      const nh = Math.max(session.hearts, 0);
+      hearts.textContent = '❤️'.repeat(nh) + '🖤'.repeat(3 - nh);
+    }
+
+    const impactStr = (chosen.impact >= 0 ? '+$' : '-$') + fmt(Math.abs(chosen.impact), 0);
+    footer.className = 'lesson-footer ' + (chosen.correct ? 'fb-correct' : 'fb-incorrect');
+    feedbackMsg.className = 'footer-feedback show';
+    feedbackMsg.innerHTML =
+      '<div class="feedback-title">' + (chosen.correct ? '✅ Decisión óptima (' + impactStr + ')' : '❌ Pérdida de valor (' + impactStr + ')') + '</div>' +
+      '<div class="feedback-note">' + chosen.explain + '</div>';
+
+    actionBtn.textContent = session.index === session.rounds.length - 1 ? 'VER RESULTADO FINAL' : 'SIGUIENTE RONDA →';
+    actionBtn.className = chosen.correct ? 'btn-3d' : 'btn-3d danger';
+  });
+
   inner.appendChild(actionBtn);
   footer.appendChild(feedbackMsg);
   footer.appendChild(inner);
   screen.appendChild(footer);
-
   root.appendChild(screen);
-
-  session.actionBtn = actionBtn;
-  session.footerEl = footer;
-  session.feedbackMsgEl = feedbackMsg;
-  session.checker = renderExercise(session.queue[session.index].ex, body, actionBtn);
-}
-
-function updateHeartsUI() {
-  const h = Math.max(session.hearts, 0);
-  session.heartsEl.innerHTML = '❤️'.repeat(h) + '🖤'.repeat(3 - h);
-}
-
-function handleAction() {
-  const btn = session.actionBtn;
-  if (session.phase === 'checked') {
-    advance();
-    return;
-  }
-
-  const result = session.checker.check();
-  if (result.retry) return;
-
-  session.phase = 'checked';
-
-  if (result.isStep) {
-    session.xpEarned += 5;
-    state.xp += 5;
-    saveState();
-    btn.textContent = 'CONTINUAR';
-    btn.className = 'btn-3d';
-    btn.disabled = false;
-    showFeedback(true, '¡Fórmula resuelta!', 'Observa la sustitución y el resultado arriba.');
-    return;
-  }
-
-  const correct = result.correct;
-  const gained = result.xp !== undefined ? result.xp : 10;
-  if (correct) {
-    session.xpEarned += gained;
-    state.xp += gained;
-    saveState();
-  } else {
-    session.mistakes += 1;
-    session.hearts -= 1;
-    updateHeartsUI();
-  }
-
-  btn.textContent = 'CONTINUAR';
-  btn.className = correct ? 'btn-3d' : 'btn-3d danger';
-  btn.disabled = false;
-
-  showFeedback(
-    correct,
-    correct ? '¡Correcto!' : 'Incorrecto',
-    correct ? '+' + gained + ' XP' : (result.explain ? 'Respuesta correcta: ' + result.explain : 'Revisa la solución mostrada arriba.')
-  );
-}
-
-function loseHeart() {
-  session.mistakes += 1;
-  session.hearts -= 1;
-  updateHeartsUI();
-  if (session.hearts <= 0) setTimeout(failLesson, 400);
-}
-
-function completeMatchExercise() {
-  session.phase = 'checked';
-  const gained = 5;
-  session.xpEarned += gained;
-  state.xp += gained;
-  saveState();
-  const btn = session.actionBtn;
-  btn.style.display = '';
-  btn.textContent = 'CONTINUAR';
-  btn.className = 'btn-3d';
-  btn.disabled = false;
-  showFeedback(true, '¡Todo emparejado!', '+' + gained + ' XP');
-}
-
-function showFeedback(correct, title, note) {
-  session.footerEl.className = 'lesson-footer ' + (correct ? 'fb-correct' : 'fb-incorrect');
-  session.feedbackMsgEl.className = 'footer-feedback show';
-  session.feedbackMsgEl.innerHTML =
-    '<div class="feedback-title">' + (correct ? '✅' : '❌') + ' ' + title + '</div>' +
-    '<div class="feedback-note">' + note + '</div>';
-}
-
-function hideFeedback() {
-  session.footerEl.className = 'lesson-footer';
-  session.feedbackMsgEl.className = 'footer-feedback';
-}
-
-function advance() {
-  if (session.hearts <= 0) {
-    failLesson();
-    return;
-  }
-  hideFeedback();
-  session.index += 1;
-  if (session.index >= session.queue.length) {
-    finishLesson();
-    return;
-  }
-  session.phase = 'answering';
-  const body = document.querySelector('.lesson-body');
-  const fill = document.querySelector('.progress-fill');
-  fill.style.transform = 'scaleX(' + session.index / session.queue.length + ')';
-  session.checker = renderExercise(session.queue[session.index].ex, body, session.actionBtn);
 }
 
 function finishLesson() {
   const stars = starsForMistakes(session.mistakes);
-  const prev = state.lessons[session.lesson.id];
+  const lvl = session.level;
+  const prev = state.lessons[lvl.id];
   const bestStars = prev ? Math.max(prev.stars, stars) : stars;
-  state.lessons[session.lesson.id] = { completed: true, stars: bestStars };
+  const bestCapital = prev && prev.bestCapital ? Math.max(prev.bestCapital, session.capital) : session.capital;
+  state.lessons[lvl.id] = { completed: true, stars: bestStars, bestCapital };
   const streakBumped = registerStreak();
   saveState();
   renderSummary(stars, streakBumped);
 }
 
 function renderSummary(stars, streakBumped) {
+  const lvl = session.level;
+  const growth = Math.round(((session.capital - lvl.startCapital) / lvl.startCapital) * 100);
+  const growthStr = (growth >= 0 ? '+' : '') + growth + '%';
+
   root.innerHTML = '';
   const wrap = el('div', 'lesson-screen');
   const content = el('div', 'summary-screen');
   content.innerHTML =
-    '<div class="summary-mascot">' + (stars === 3 ? '🏆' : stars === 2 ? '🎉' : '✅') + '</div>' +
-    '<h2>¡Lección completada!</h2>' +
+    '<div class="summary-mascot">' + (lvl.isBoss ? '👑' : stars === 3 ? '🏆' : stars === 2 ? '🎉' : '✅') + '</div>' +
+    '<h2>' + (lvl.isBoss ? '¡Venciste al Boss Final! Eres CFO Maestro' : '¡Nivel empresarial superado!') + '</h2>' +
+    '<p class="summary-sub">' + lvl.icon + ' ' + lvl.title + '</p>' +
     '<div class="summary-stats">' +
+    '<div class="summary-stat"><div class="value">$' + fmt(session.capital, 0) + '</div><div class="label">Capital (' + growthStr + ')</div></div>' +
     '<div class="summary-stat"><div class="value">' + '⭐'.repeat(stars) + '☆'.repeat(3 - stars) + '</div><div class="label">Estrellas</div></div>' +
     '<div class="summary-stat"><div class="value">+' + session.xpEarned + '</div><div class="label">XP ganado</div></div>' +
-    '<div class="summary-stat"><div class="value">' + session.mistakes + '</div><div class="label">Errores</div></div>' +
     '</div>';
   const btn = el('button', 'btn-3d');
   btn.textContent = 'CONTINUAR';
   btn.addEventListener('click', () => {
     session = null;
+    activeTab = 'practice';
     renderHome();
     if (streakBumped) showToast('🔥 ¡Racha +1 día!');
   });
@@ -1210,14 +1246,14 @@ function renderSummary(stars, streakBumped) {
 }
 
 function failLesson() {
-  const lessonId = session.lesson.id;
+  const levelId = session.level.id;
   root.innerHTML = '';
   const wrap = el('div', 'lesson-screen');
   const content = el('div', 'fail-screen');
-  content.innerHTML = '<div class="emoji">💔</div><h2>¡Te quedaste sin corazones!</h2><p>No te preocupes, puedes intentarlo de nuevo.</p>';
+  content.innerHTML = '<div class="emoji">📉</div><h2>¡La Junta retiró su confianza!</h2><p>Tu empresa sufrió demasiadas pérdidas en este nivel. Ajusta tu estrategia e inténtalo de nuevo.</p>';
   const retryBtn = el('button', 'btn-3d');
-  retryBtn.textContent = 'INTENTAR DE NUEVO';
-  retryBtn.addEventListener('click', () => startLesson(lessonId));
+  retryBtn.textContent = 'REINTENTAR NIVEL';
+  retryBtn.addEventListener('click', () => startLesson(levelId));
   const exitBtn = el('button', 'btn-3d secondary');
   exitBtn.textContent = 'SALIR';
   exitBtn.addEventListener('click', () => { session = null; renderHome(); });
