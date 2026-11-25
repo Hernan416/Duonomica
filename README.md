@@ -153,3 +153,95 @@ Si vas a grabar un video o dar una explicación de cómo usar **Econing**, este 
 2. **Mostrar "Aprender" (1 minuto):** Entrar a una lección (por ejemplo, *Interés Simple vs. Compuesto* o *Equilibrio*), mostrar que avanza **paso a paso**, voltear una tarjeta 3D, mover un simulador en vivo y responder un *Mini-reto relámpago*.
 3. **Mostrar "Practicar" (1 minuto):** Explicar que empiezas con **`$10,000`**, entrar al **Nivel 01**, jugar una ronda buena (ver cómo sube el dinero) y mostrar qué pasa cuando te equivocas (pierdes capital y 1 vida).
 4. **Explicar la regla de las 3 vidas y la meta del Boss Final:** Contar que si pierdes las 3 vidas el nivel se reinicia sin afectar tu dinero previo y te recomienda qué estudiar, y que para retar al **👑 Boss Final** necesitas haber pasado los 11 niveles **y** tener **`$60,000`** acumulados.
+
+---
+
+## 🗺️ 6. Happy Path: Respuestas Correctas de Todos los Niveles
+
+A continuación tienes la guía exacta con las **respuestas correctas de las 60 rondas** (los 12 niveles completos, incluido el **Boss Final**), para que puedan probar el recorrido perfecto de principio a fin.
+
+### Nivel 01 — 🌱 Fundamentos de la Startup
+1. **Primer equipo de producción:** Elegir el modelo Pro-2 ($4,500) *(+$1,800)*
+2. **Centrarse en las diferencias:** Ignorar el salario común y elegir Cloud B ($280/mes) *(+$1,440)*
+3. **Punto de vista consistente:** Evaluar desde la perspectiva global de la empresa y rechazar el gasto *(+$1,200)*
+4. **Criterios relevantes e intangibles:** Elegir Zona B considerando la seguridad del personal *(+$1,500)*
+5. **Revisión post-implementación:** Auditar los resultados reales vs. proyectados para ajustar el modelo *(+$1,600)*
+
+### Nivel 02 — 🪙 Liquidez, Capital e Inflación
+1. **Excedente en caja:** Invertir los $5,000 en el inventario productivo (+12%) *(+$1,600)*
+2. **Compra de servidores: ¿hoy o en 1 año?:** Comprar el servidor hoy por $2,000 *(+$1,400)*
+3. **Elección de proyecto:** Registrar el 9% sacrificado como tu Costo de Oportunidad *(+$1,800)*
+4. **Evaluando un microcrédito:** Elegir el banco (11% anual vs. 15% del proveedor) *(+$1,200)*
+5. **Retorno de campaña:** Sí, porque la TR fue 20% (> 15% de TMAR) *(+$2,000)*
+
+### Nivel 03 — 📈 Interés Compuesto y Equivalencia
+1. **Fondo de reserva a 5 años:** Elegir Banco Beta (7% compuesto → $14,025.52) *(+$2,200)*
+2. **Cálculo rápido de deuda:** Sobre $5,500 (capital + interés del año 1) *(+$1,500)*
+3. **Elige tu plan de financiamiento:** Plan 4: Abonar $1,000 de principal + intereses cada año ($6,200 total) *(+$2,000)*
+4. **¿Son equivalentes los planes?:** Sí son equivalentes a esa tasa: cambian los montos nominales por el momento del pago *(+$1,400)*
+5. **Renovación de flota:** $9,261.00 → $8,000 × (1.05)³ *(+$1,900)*
+
+### Nivel 04 — 📊 Flujos de Caja y Pago Único
+1. **Evaluando una nueva sucursal:** +$4,310 ($5,310 − $3,000 + $2,000) *(+$2,100)*
+2. **Lectura del diagrama de flujo:** Que es un egreso (salida de efectivo) en el momento presente *(+$1,300)*
+3. **Reserva a 8 años:** $1,718.20 (Proceso de capitalización) *(+$1,800)*
+4. **Compra de bono cupón cero:** $627.40 (Proceso de descuento) *(+$1,900)*
+5. **Meta de duplicar acciones:** 6.12 años → N = log(2) / log(1.12) *(+$2,000)*
+
+### Nivel 05 — 🏦 Expansión con Anualidades
+1. **Reparación mayor de planta:** Hasta $67,044 ($20,000 × 3.3522) *(+$2,400)*
+2. **Fondo de amortización:** $9,750 al año ($100,000 × 0.0975) *(+$2,000)*
+3. **Contrato de alquiler de oficina:** Elegir Opción A (Vencida) y ahorrar $16,925 en valor presente *(+$2,500)*
+4. **Proyecto con construcción previa:** $205,271.73 → $288,384 × (1.12)⁻³ *(+$2,200)*
+5. **Cuota de financiamiento:** $4,728.01 / mes ($50,000 / 10.5753) *(+$2,000)*
+
+### Nivel 06 — 🏛️ Composición del Capital y TMAR
+1. **Mezcla de financiamiento:** 13% anual (0.5×10% + 0.5×16%) *(+$2,200)*
+2. **Fijando la valla de inversión:** TMAR ≥ 14% anual (cubre costo de capital + riesgo/inflación) *(+$2,300)*
+3. **Proyecto frente a costo de capital:** Rechazarlo: rinde menos que la TMAR (11.5% < 14%) *(+$2,100)*
+4. **Reinvertir utilidades:** $13,225 → $10,000 × (1.15)² *(+$2,000)*
+5. **¿Usar deuda o solo capital propio?:** Sí, porque el retorno del proyecto (18%) supera el costo de la deuda (10%) *(+$2,400)*
+
+### Nivel 07 — 🔄 Tasas Nominales, Efectivas y Continua
+1. **Línea de crédito corporativa:** Elegir Banco Sur (12.2% efectivo vs. 12.68% efectivo del Norte) *(+$2,200)*
+2. **Depósitos trimestrales, capitalización mensual:** Tasa efectiva trimestral: (1.01)³ − 1 = 3.0301% *(+$2,000)*
+3. **Pagos semanales con capitalización mensual:** No genera interés compuesto hasta el cierre del periodo de capitalización mensual *(+$1,900)*
+4. **Inversión bursátil continua:** 10.52% efectivo anual (e⁰·¹⁰ − 1) *(+$2,100)*
+5. **Certificado corporativo:** Capitalización diaria (m = 365) → $22,549 *(+$2,400)*
+
+### Nivel 08 — 🧾 Costos y Estimación en Diseño
+1. **Estructura de la planta:** CF ($12,000) se mantiene igual; el CV total sube de $7,500 a $15,000 *(+$2,200)*
+2. **Control de desviaciones:** Para detectar la variación ($5/u) y corregir ineficiencias en planta *(+$2,000)*
+3. **Cotizando una nueva nave industrial:** Aplicar estimación paramétrica: 1,200 m² × $450/m² = $540,000 *(+$2,100)*
+4. **Uso de local propio:** Incluir $2,500/mes como Costo de Oportunidad del proyecto *(+$2,300)*
+5. **Economía de escala:** Con 1,000 u ($30/u vs. $40/u con 500 u) *(+$2,200)*
+
+### Nivel 09 — 🏭 Equilibrio, Capacidad y Precios
+1. **¿Cuántas unidades vender para no perder?:** 500 unidades/mes → Q* = $10,000 / ($50 − $30) *(+$2,500)*
+2. **Pedido especial de un cliente:** Sí, aporta +$1,200 de utilidad aprovechando capacidad ociosa *(+$2,400)*
+3. **Fijando precio con margen objetivo:** $52.00 → $40 × (1 + 0.30) *(+$2,100)*
+4. **Ilusión de utilidad:** El margen real fue negativo (−1.75%): la empresa perdió poder adquisitivo *(+$2,200)*
+5. **Planificando ventas:** 700 unidades → ($10,000 + $4,000) / $20 *(+$2,400)*
+
+### Nivel 10 — 📐 Evaluación Económica (VP, VF, VA, TIR, TER, PRI)
+1. **Proyecto con ingreso, gasto y rescate:** Rechazar: VPN = −$1.45 (< 0) *(+$2,600)*
+2. **Equipo de soldadura (TMAR = 20%):** Sí, todos los métodos coinciden en ACEPTAR (> 0) porque son equivalentes a la TMAR *(+$2,800)*
+3. **Crédito / maquinaria autofinanciable:** Es la TIR: la tasa de equilibrio donde VPN = 0 y el proyecto se autofinancia al 10% *(+$2,700)*
+4. **Reinversión realista de flujos:** TER / TIRM = ($13,181.24 / $10,000)^(1/3) − 1 = 9.64% *(+$2,900)*
+5. **Liquidez en entorno volátil:** El PRI simple mide liquidez rápida, pero el PRI descontado revela que no recupera la TMAR en su vida útil *(+$2,600)*
+
+### Nivel 11 — ⚖️ Selección de Alternativas y Excel
+1. **Canasta de proyectos:** Alternativas complementarias *(+$2,200)*
+2. **Fábrica textil (TMAR = 12%, 5 años):** Máquina A: tiene el mayor VPN y la inversión extra en B o C no alcanza la TMAR *(+$3,000)*
+3. **Comparando 4, 6 y 8 años (TMAR = 12%):** Usar Valor Anual (VA) o VPN sobre el MCM (24 años): gana la Máquina C ($9,896/año) *(+$3,200)*
+4. **Modelando en hoja de cálculo:** =PAGO(10%, 5, 50000) → arrojará un resultado negativo (desembolso) *(+$2,500)*
+5. **Flujos irregulares en Excel:** =TIRM(valores, 8%, 10%) *(+$2,600)*
+
+### Nivel 12 — 👑 Boss Final: Junta de Inversionistas
+*(Requiere haber completado los niveles 01–11 y contar con al menos `$60,000` de capital)*
+
+1. **Proyecto de automatización:** Rechazar la máquina porque su VPN es negativo (−$26.30) *(+$3,000)*
+2. **Lanzamiento de producto estrella:** Aprobar: supera el punto de equilibrio (1,200 > 800) y crea +$12,500 de VPN *(+$3,500)*
+3. **Duelo de líneas de producción:** Elegir Línea Y: al tener vidas distintas, maximiza el Valor Anual equivalente ($6,900 > $4,200) *(+$3,600)*
+4. **Proyecto con espera y rescate:** Descontar los flujos anuales a t = 2 con P/A, traerlos a t = 0 con (1+i)⁻², sumar rescate descontado y restar I₀ *(+$3,800)*
+5. **La oferta final de la Junta:** Firmar Contrato X (+$18,000 VPN, TER > TMAR), haciendo explícita la incertidumbre y revisando resultados *(+$5,000)*
